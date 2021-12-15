@@ -2,14 +2,17 @@
 const express = require("express");
 const router = express.Router();
 const validate = require("../../middlewares/validate");
-const userInfoController = require("../../controllers/user_personal_info_controller");
-const userInfoValidation = require("../../validations/user_personal_info_validation");
+const userPersonalInfoController = require("../../controllers/user_personal_info_controller");
+const userPersonalInfoValidation = require("../../validations/user_personal_info_validation");
 
 router
   .route("/")
+  .get(userPersonalInfoController.getAllUserPersonalInfo, (req, res) => {
+    console.log("get all userinfo");
+  })
   .post(
-    validate(userInfoValidation.createUserInfo),
-    userInfoController.createUserInfo,
+    validate(userPersonalInfoValidation.createUserPersonalInfo),
+    userPersonalInfoController.createUserPersonalInfo,
     (req, res) => {
       console.log("create userinfo");
     }
@@ -18,15 +21,15 @@ router
 router
   .route("/:id")
   .get(
-    validate(userInfoValidation.getUserInfo),
-    userInfoController.getUserInfo,
+    validate(userPersonalInfoValidation.getUserPersonalInfo),
+    userPersonalInfoController.getUserPersonalInfo,
     (req, res) => {
       console.log("get userinfo");
     }
   )
   .put(
-    validate(userInfoValidation.updateUserInfo),
-    userInfoController.updateUserInfo,
+    validate(userPersonalInfoValidation.updateUserPersonalInfo),
+    userPersonalInfoController.updateUserPersonalInfo,
     (req, res) => {
       console.log("update userinfo");
     }
@@ -44,6 +47,23 @@ module.exports = router;
 /**
  * @swagger
  * /user/personal/Info:
+ *   get:
+ *     summary: get all users info
+ *     description: get all users
+ *     tags: [Personal Info]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/UserInfos'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
  *   post:
  *     summary: Create a user
  *     description: create user through signup process

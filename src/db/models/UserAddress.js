@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       aptNumber: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       streetNumber: {
         type: DataTypes.INTEGER,
@@ -64,6 +64,9 @@ module.exports = (sequelize, DataTypes) => {
       tableName: "user_address",
       underscored: true,
       freezeTableName: true,
+      indexes: [
+        { unique: true, fields: ["address_type_code", "user_contact_id"] },
+      ],
     }
   );
 

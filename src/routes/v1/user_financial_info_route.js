@@ -2,28 +2,28 @@
 const express = require("express");
 const router = express.Router();
 const validate = require("../../middlewares/validate");
-const userAccountController = require("../../controllers/user_financial_info_controller");
-const userAccountValidation = require("../../validations/user_financial_info_validation");
+const userFinancialInfoController = require("../../controllers/user_financial_info_controller");
+const userFinancialInfoValidation = require("../../validations/user_financial_info_validation");
 
 router
   .route("/:id")
   .post(
-    validate(userAccountValidation.createUserAccount),
-    userAccountController.createUserAccount,
+    validate(userFinancialInfoValidation.createUserFinancialInfo),
+    userFinancialInfoController.createUserFinancialInfo,
     (req, res) => {
       console.log("post userAccount");
     }
   )
   .get(
-    validate(userAccountValidation.getUserAccount),
-    userAccountController.getUserAccount,
+    validate(userFinancialInfoValidation.getUserFinancialInfo),
+    userFinancialInfoController.getUserFinancialInfo,
     (req, res) => {
       console.log("get userAccount");
     }
   )
   .put(
-    validate(userAccountValidation.updateUserAccount),
-    userAccountController.updateUserAccount,
+    validate(userFinancialInfoValidation.updateUserFinancialInfo),
+    userFinancialInfoController.updateUserFinancialInfo,
     (req, res) => {
       console.log("put userAccount");
     }
@@ -52,14 +52,14 @@ module.exports = router;
  *               - password
  *               - role
  *             properties:
- *               bankCode:
+ *               institutionNumber:
  *                 type: string
  *               transitNumber:
- *                 type: string
+ *                 type: number
  *               accountNumber:
- *                 type: string
+ *                 type: number
  *             example:
- *               bankCode: 010
+ *               institutionNumber: "010"
  *               transitNumber: 22222
  *               accountNumber: 223232323
  *     responses:
@@ -122,14 +122,14 @@ module.exports = router;
  *           schema:
  *             type: object
  *             properties:
- *               bankCode:
+ *               institutionNumber:
  *                 type: string
  *               transitNumber:
- *                 type: string
+ *                 type: number
  *               accountNumber:
- *                 type: string
+ *                 type: number
  *             example:
- *               bankCode: 010
+ *               institutionNumber: "010"
  *               transitNumber: 22222
  *               accountNumber: 223232323
  *     responses:

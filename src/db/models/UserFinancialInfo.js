@@ -3,9 +3,9 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class UserInfo extends Model {}
+  class UserFinancialInfo extends Model {}
 
-  UserInfo.init(
+  UserFinancialInfo.init(
     {
       id: {
         type: DataTypes.INTEGER,
@@ -13,29 +13,17 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      sinNumber: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      firstName: {
+      institutionNumber: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      middleName: {
-        type: DataTypes.STRING,
+      transitNumber: {
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
-      lastName: {
-        type: DataTypes.STRING,
+      accountNumber: {
+        type: DataTypes.BIGINT,
         allowNull: false,
-      },
-      dob: {
-        type: DataTypes.DATEONLY,
-        allowNull: false,
-      },
-      maritalStatusCode: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
       },
 
       // start: audit and common info - applies to all tables
@@ -56,12 +44,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "UserInfo",
-      tableName: "user_info",
+      modelName: "UserFinancialInfo",
+      tableName: "user_financial_info",
       underscored: true,
       freezeTableName: true,
     }
   );
 
-  return UserInfo;
+  return UserFinancialInfo;
 };

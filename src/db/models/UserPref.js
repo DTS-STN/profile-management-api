@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       timeZoneCode: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       timeFormatCode: {

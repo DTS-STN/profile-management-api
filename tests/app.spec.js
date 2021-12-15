@@ -31,7 +31,7 @@ describe("app test", () => {
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
       message:
-        "bankCode is required, transitNumber is required, accountNumber is required",
+        "Branch or Transit Nunber is required, Financial Institution Nunber is required, Account Nunber is required",
     });
   });
 
@@ -40,7 +40,8 @@ describe("app test", () => {
     expect(response.statusCode).toBe(httpStatus.BAD_REQUEST);
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
-      message: "userPref is required",
+      message:
+        "Web language is required, Correspondence language is required, Braille/TTY is required, Preferred Currency Code is required, timeZoneCode is required, Time Format Code is required",
     });
   });
 
@@ -49,7 +50,7 @@ describe("app test", () => {
     expect(response.statusCode).toBe(httpStatus.BAD_REQUEST);
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
-      message: "userInfo is required, userContact is required",
+      message: "userPersonalInfo is required",
     });
   });
   it("should test that required user contact info body is missing", async () => {
@@ -57,7 +58,8 @@ describe("app test", () => {
     expect(response.statusCode).toBe(httpStatus.BAD_REQUEST);
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
-      message: "userAddress is required",
+      message:
+        "userAddresses is required, Phone Nunber is required, Email is required",
     });
   });
 });

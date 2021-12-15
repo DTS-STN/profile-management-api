@@ -3,9 +3,9 @@
 const Sequelize = require("sequelize");
 const config = require("../../config/config");
 
-const UserInfoModel = require("./UserInfo");
+const UserPersonalInfoModel = require("./UserPersonalInfo");
 const UserPrefModel = require("./UserPref");
-const UserAccountModel = require("./UserAccount");
+const UserFinancialInfoModel = require("./UserFinancialInfo");
 const UserContactModel = require("./UserContact");
 const UserAddressModel = require("./UserAddress");
 
@@ -21,28 +21,34 @@ const sequelize = new Sequelize(config.db, config.user, config.password, {
   },
 });
 
-const UserInfo = UserInfoModel(sequelize, Sequelize.DataTypes);
+const UserPersonalInfo = UserPersonalInfoModel(sequelize, Sequelize.DataTypes);
 const UserPref = UserPrefModel(sequelize, Sequelize.DataTypes);
-const UserAccount = UserAccountModel(sequelize, Sequelize.DataTypes);
+const UserFinancialInfo = UserFinancialInfoModel(
+  sequelize,
+  Sequelize.DataTypes
+);
 const UserContact = UserContactModel(sequelize, Sequelize.DataTypes);
 const UserAddress = UserAddressModel(sequelize, Sequelize.DataTypes);
 
-UserInfo.userPrefs = UserInfo.hasOne(UserPref);
-UserPref.belongsTo(UserInfo);
+UserPersonalInfo.userPrefs = UserPersonalInfo.hasOne(UserPref);
+UserPref.belongsTo(UserPersonalInfo);
 
-UserInfo.hasOne(UserAccount);
-UserAccount.belongsTo(UserInfo);
+UserPersonalInfo.hasOne(UserFinancialInfo);
+UserFinancialInfo.belongsTo(UserPersonalInfo);
 
-UserInfo.userContact = UserInfo.hasOne(UserContact);
-UserContact.belongsTo(UserInfo);
+UserPersonalInfo.userContact = UserPersonalInfo.hasOne(UserContact);
+UserContact.belongsTo(UserPersonalInfo);
 
-UserContact.hasMany(UserAddress);
+UserContact.hasMany(UserAddress, {
+  as: "userAddresses",
+  foreignKey: "user_contact_id",
+});
 UserAddress.belongsTo(UserContact);
 
 module.exports = {
-  UserInfo,
+  UserPersonalInfo,
   UserPref,
-  UserAccount,
+  UserFinancialInfo,
   UserContact,
   UserAddress,
   sequelize,

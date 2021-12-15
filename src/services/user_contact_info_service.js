@@ -2,7 +2,7 @@ const httpStatus = require("http-status");
 const logger = require("../config/logger");
 
 const {
-  UserInfo,
+  UserPersonalInfo,
   UserContact,
   UserAddress,
   sequelize,
@@ -21,31 +21,53 @@ const createUserContact = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const userInfo = await UserInfo.findOne({
-      include: [UserContact],
+    const userPersonalInfo = await UserPersonalInfo.findOne({
+      include: [
+        {
+          model: UserContact,
+          include: [{ model: UserAddress, as: "userAddresses" }],
+        },
+      ],
       where: { uuid: req.params.id },
     });
 
-    // depending UI, may need to allow multiple addresses
-    if (userInfo.UserContact) {
-      const userAddress = await userInfo.UserContact.createUserAddress(
-        req.body.userAddress[0],
+    if (!userPersonalInfo) {
+      return res.status(httpStatus.NOT_FOUND).send({
+        status: httpStatus.NOT_FOUND,
+        message: "User not found!",
+        userPersonalInfo_uuid: req.params.id,
+      });
+    }
+
+    if (userPersonalInfo && !userPersonalInfo.UserContact) {
+      const createContact = await userPersonalInfo.createUserContact(
+        req.body,
+        {
+          include: [{ model: UserAddress, as: "userAddresses" }],
+        },
         {
           transaction: t,
         }
       );
-
-      await t.commit();
-      return res.status(httpStatus.CREATED).send({
-        status: httpStatus.CREATED,
-        userAddress_uuid: userAddress.uuid,
-        message: "Address added",
-      });
+      if (createContact) {
+        await t.commit();
+        return res.status(httpStatus.CREATED).send({
+          status: httpStatus.CREATED,
+          message: "Contact information added",
+        });
+      } else {
+        await t.rollback();
+        return res.status(httpStatus.NOT_MODIFIED).send({
+          status: httpStatus.NOT_MODIFIED,
+          message: "Failed to add contact info",
+        });
+      }
     } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        message: "User or contact not found!",
-        userInfo_uuid: req.params.id,
+      return res.status(httpStatus.BAD_REQUEST).send({
+        status: httpStatus.BAD_REQUEST,
+        message:
+          "User Contact already exists, use update method to add additional address!",
+        userPersonalInfo_uuid: req.params.id,
       });
     }
   } catch (err) {
@@ -65,16 +87,17 @@ const getUserContact = async (req, res) => {
     });
 
   try {
-    const userInfo = await UserInfo.findOne({
+    const userPersonalInfo = await UserPersonalInfo.findOne({
       include: [{ model: UserContact }],
       where: { uuid: req.params.id },
     });
 
-    if (userInfo.UserContact) {
+    if (userPersonalInfo && userPersonalInfo.UserContact) {
       const userContact = await UserContact.findOne({
         include: [
           {
             model: UserAddress,
+            as: "userAddresses",
             attributes: [
               "addressTypeCode",
               "aptNumber",
@@ -84,10 +107,11 @@ const getUserContact = async (req, res) => {
               "city",
               "countryCode",
             ],
+            where: { expiryDate: null },
           },
         ],
         attributes: ["phone", "email"],
-        where: { uuid: userInfo.UserContact.uuid },
+        where: { uuid: userPersonalInfo.UserContact.uuid },
       });
       return res.status(httpStatus.OK).send(userContact);
     } else {
@@ -112,48 +136,54 @@ const updateUserContact = async (req, res) => {
 
   const t = await sequelize.transaction();
   try {
-    const userInfo = await UserInfo.findOne({
-      include: [{ model: UserContact, include: [UserAddress] }],
+    const userPersonalInfo = await UserPersonalInfo.findOne({
+      include: [
+        {
+          model: UserContact,
+          include: [{ model: UserAddress, as: "userAddresses" }],
+        },
+      ],
       where: { uuid: req.params.id },
     });
 
-    if (userInfo.UserContact) {
-      const updateContact = await userInfo.UserContact.update(
-        req.body.userContact[0],
+    if (!userPersonalInfo || !userPersonalInfo.UserContact) {
+      return res
+        .status(httpStatus.NOT_FOUND)
+        .send({ message: "User or User contact not found!" });
+    }
+
+    if (userPersonalInfo && userPersonalInfo.UserContact) {
+      const updateContact = await userPersonalInfo.UserContact.update(
+        req.body,
         {
           transaction: t,
         }
       );
 
       if (updateContact) {
-        updateContact.UserAddresses.forEach(async (userAddress) => {
-          req.body.userAddress.forEach(async (address) => {
-            const updateAddress = await userAddress.update(
-              address,
-              {
-                where: {
-                  addressTypeCode: address.addressTypeCode,
-                },
+        req.body.userAddresses.forEach(async (address) => {
+          const updateAddress = await UserAddress.update(
+            address,
+            {
+              where: {
+                addressTypeCode: address.addressTypeCode,
+                user_contact_id: updateContact.id,
               },
-              {
-                transaction: t,
-              }
-            );
-
-            if (!updateAddress) {
-              await t.rollback();
-              return res.status(httpStatus.NOT_MODIFIED).send({
-                status: httpStatus.NOT_MODIFIED,
-                message: "Failed to update contact info",
-              });
+            },
+            {
+              transaction: t,
             }
-          });
+          );
+
+          if (updateAddress[0] === 0) {
+            await updateContact.createUserAddress(address);
+          }
         });
 
         await t.commit();
         return res.status(httpStatus.OK).send({
           status: httpStatus.OK,
-          message: "contact info updated",
+          message: "Contact information updated",
         });
       }
     } else {

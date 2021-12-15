@@ -1,9 +1,13 @@
 const httpStatus = require("http-status");
 const logger = require("../config/logger");
 
-const { UserInfo, UserAccount, sequelize } = require("../db/models/sequelize");
+const {
+  UserPersonalInfo,
+  UserFinancialInfo,
+  sequelize,
+} = require("../db/models/sequelize");
 
-const createUserAccount = async (req, res) => {
+const createUserFinancialInfo = async (req, res) => {
   await sequelize
     .sync()
     .then(function () {
@@ -16,20 +20,31 @@ const createUserAccount = async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    const userInfo = await UserInfo.findOne({
-      include: [],
+    const userInfo = await UserPersonalInfo.findOne({
+      include: [UserFinancialInfo],
       where: { uuid: req.params.id },
     });
 
-    if (userInfo) {
-      const userAccount = await userInfo.createUserAccount(req.body, {
-        transaction: t,
+    if (userInfo && userInfo.UserFinancialInfo) {
+      return res.status(httpStatus.BAD_REQUEST).send({
+        status: httpStatus.BAD_REQUEST,
+        message: "Financial Info already exists",
       });
+    }
+
+    if (userInfo && !userInfo.UserFinancialInfo) {
+      const userFinancialInfo = await userInfo.createUserFinancialInfo(
+        req.body,
+        {
+          transaction: t,
+        }
+      );
 
       await t.commit();
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
-        userAccount_uuid: userAccount.uuid,
+        userFinancialInfo_uuid: userFinancialInfo.uuid,
+        message: "Financial Info added",
       });
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
@@ -44,7 +59,7 @@ const createUserAccount = async (req, res) => {
   }
 };
 
-const getUserAccount = async (req, res) => {
+const getUserFinancialInfo = async (req, res) => {
   await sequelize
     .sync()
     .then(function () {
@@ -55,29 +70,30 @@ const getUserAccount = async (req, res) => {
     });
 
   try {
-    const userInfo = await UserInfo.findOne({
+    const userPersonalInfo = await UserPersonalInfo.findOne({
       include: [
         {
-          model: UserAccount,
-          attributes: ["bankCode", "transitNumber", "accountNumber"],
+          model: UserFinancialInfo,
+          attributes: ["institutionNumber", "transitNumber", "accountNumber"],
         },
       ],
       where: { uuid: req.params.id },
     });
 
-    if (userInfo.UserAccount) {
-      return res.status(httpStatus.OK).send(userInfo.UserAccount);
+    if (userPersonalInfo && userPersonalInfo.UserFinancialInfo) {
+      return res.status(httpStatus.OK).send(userPersonalInfo.UserFinancialInfo);
     } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "User Account not found!" });
+      return res.status(httpStatus.NOT_FOUND).send({
+        status: httpStatus.NOT_FOUND,
+        message: "User or  Financial Info not found!",
+      });
     }
   } catch (err) {
     logger.error(err);
   }
 };
 
-const updateUserAccount = async (req, res) => {
+const updateUserFinancialInfo = async (req, res) => {
   await sequelize
     .sync()
     .then(function () {
@@ -88,27 +104,31 @@ const updateUserAccount = async (req, res) => {
     });
 
   try {
-    const userInfo = await UserInfo.findOne({
-      include: [UserAccount],
+    const userInfo = await UserPersonalInfo.findOne({
+      include: [UserFinancialInfo],
       where: { uuid: req.params.id },
     });
 
-    if (userInfo.UserAccount) {
-      const updateUserAccount = await userInfo.UserAccount.update(req.body);
-      if (updateUserAccount) {
+    if (userInfo && userInfo.UserFinancialInfo) {
+      const updateUserFinancialInfo = await userInfo.UserFinancialInfo.update(
+        req.body
+      );
+
+      if (updateUserFinancialInfo) {
         return res
           .status(httpStatus.OK)
-          .send({ status: httpStatus.OK, message: "Account updated" });
+          .send({ status: httpStatus.OK, message: "Financial Info updated" });
       } else {
-        return res.status(httpStatus.NOT_MODIFIED).send({
-          status: httpStatus.NOT_MODIFIED,
-          message: "Failed to update account",
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
+          status: httpStatus.INTERNAL_SERVER_ERROR,
+          message: "Failed to update financial info",
         });
       }
     } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "User not found!" });
+      return res.status(httpStatus.NOT_FOUND).send({
+        status: httpStatus.NOT_FOUND,
+        message: "User financial Info not found!",
+      });
     }
   } catch (err) {
     logger.error(err);
@@ -116,7 +136,7 @@ const updateUserAccount = async (req, res) => {
 };
 
 module.exports = {
-  getUserAccount,
-  updateUserAccount,
-  createUserAccount,
+  getUserFinancialInfo,
+  updateUserFinancialInfo,
+  createUserFinancialInfo,
 };

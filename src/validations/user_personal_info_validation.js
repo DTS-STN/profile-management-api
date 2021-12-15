@@ -1,8 +1,8 @@
 const Joi = require("joi");
 
-const createUserInfo = {
+const createUserPersonalInfo = {
   body: Joi.object().keys({
-    userInfo: Joi.array()
+    userPersonalInfo: Joi.array()
       .items(
         Joi.object().keys({
           firstName: Joi.string().required().min(1).max(150),
@@ -14,26 +14,24 @@ const createUserInfo = {
         })
       )
       .required(),
-    userContact: Joi.array()
-      .items(
-        Joi.object().keys({
-          phone: Joi.string().length(10).required(),
-          email: Joi.string()
-            .email({ tlds: { allow: false } })
-            .required(),
-        })
-      )
-      .required(),
+    userContact: Joi.array().items(
+      Joi.object().keys({
+        phone: Joi.string().length(10).required(),
+        email: Joi.string()
+          .email({ tlds: { allow: false } })
+          .required(),
+      })
+    ),
   }),
 };
 
-const getUserInfo = {
+const getUserPersonalInfo = {
   params: Joi.object().keys({
     id: Joi.required(),
   }),
 };
 
-const updateUserInfo = {
+const updateUserPersonalInfo = {
   params: Joi.object().keys({
     id: Joi.required(),
   }),
@@ -50,7 +48,7 @@ const updateUserInfo = {
 };
 
 module.exports = {
-  createUserInfo,
-  getUserInfo,
-  updateUserInfo,
+  createUserPersonalInfo,
+  getUserPersonalInfo,
+  updateUserPersonalInfo,
 };

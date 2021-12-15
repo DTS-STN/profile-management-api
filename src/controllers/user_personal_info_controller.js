@@ -1,19 +1,24 @@
-const userInfoService = require("../services/user_personal_info_service");
+const userPersonalInfoService = require("../services/user_personal_info_service");
 
-const createUserInfo = (req, res) => {
-  userInfoService.createUserInfo(req.body, res);
+const createUserPersonalInfo = (req, res) => {
+  userPersonalInfoService.createUserPersonalInfo(req.body, res);
 };
 
-const getUserInfo = (req, res) => {
-  userInfoService.getUserInfo(req, res);
+const getUserPersonalInfo = (req, res) => {
+  userPersonalInfoService.getUserPersonalInfo(req, res);
 };
 
-const updateUserInfo = (req, res) => {
-  userInfoService.updateUserInfo(req, res);
+const getAllUserPersonalInfo = (req, res) => {
+  userPersonalInfoService.getAllUserPersonalInfo(req, res);
+};
+
+const updateUserPersonalInfo = (req, res) => {
+  userPersonalInfoService.updateUserPersonalInfo(req, res);
 };
 
 module.exports = {
-  createUserInfo,
-  getUserInfo,
-  updateUserInfo,
+  createUserPersonalInfo,
+  getUserPersonalInfo,
+  getAllUserPersonalInfo,
+  updateUserPersonalInfo,
 };
