@@ -27,7 +27,7 @@ const updateUserFinancialInfo = {
           "any.regex": "Financial Institution Number should be a Number",
           "string.empty": "Financial Institution Number should not be empty",
           "string.length": `Financial Institution Number length should be exactly 3`,
-          "any.required": "Financial Institution Nunber is required",
+          "any.required": "Financial Institution Number is required",
           "string.pattern.base": `Financial Institution Number should be a Number`,
         }),
       accountNumber: Joi.number()
@@ -39,7 +39,7 @@ const updateUserFinancialInfo = {
           "number.empty": "Account Number should not be empty",
           "number.min": `Account Number should be  9 digits long`,
           "number.max": `Account Number should be  13 digits long`,
-          "any.required": "Account Nunber is required",
+          "any.required": "Account Number is required",
         }),
     })
     .min(1),
@@ -55,7 +55,7 @@ const createUserFinancialInfo = {
       "number.empty": "Branch or Transit Number should not be empty",
       "number.min": `Branch or Transit Number should be  greater than {#limit}`,
       "number.max": `Branch or Transit Number should be  6 digits long`,
-      "any.required": "Branch or Transit Nunber is required",
+      "any.required": "Branch or Transit Number is required",
     }),
     institutionNumber: Joi.string()
       .length(3)
@@ -65,7 +65,7 @@ const createUserFinancialInfo = {
         "any.regex": "Financial Institution Number should be a Number",
         "string.empty": "Financial Institution Number should not be empty",
         "string.length": `Financial Institution Number length should be exactly 3`,
-        "any.required": "Financial Institution Nunber is required",
+        "any.required": "Financial Institution Number is required",
         "string.pattern.base": `Financial Institution Number should be a Number`,
       }),
     accountNumber: Joi.number()
@@ -77,7 +77,7 @@ const createUserFinancialInfo = {
         "number.empty": "Account Number should not be empty",
         "number.min": `Account Number should be  9 digits long`,
         "number.max": `Account Number should be  13 digits long`,
-        "any.required": "Account Nunber is required",
+        "any.required": "Account Number is required",
       }),
   }),
 };

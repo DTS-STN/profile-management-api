@@ -31,7 +31,7 @@ describe("app test", () => {
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
       message:
-        "Branch or Transit Nunber is required, Financial Institution Nunber is required, Account Nunber is required",
+        "Branch or Transit Number is required, Financial Institution Number is required, Account Number is required",
     });
   });
 
@@ -59,7 +59,7 @@ describe("app test", () => {
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
       message:
-        "userAddresses is required, Phone Nunber is required, Email is required",
+        "userAddresses is required, Phone Number is required, Email is required",
     });
   });
 });

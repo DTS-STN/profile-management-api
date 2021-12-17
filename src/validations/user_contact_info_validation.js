@@ -23,7 +23,7 @@ const createUserContact = {
               "number.empty": "Apartment Number should not be empty",
               "number.min": `Apartment Number should be  greater than {#limit}`,
               "number.max": `Apartment Number should be  maximum 10 digits long`,
-              "any.required": "Apartment Nunber is required",
+              "any.required": "Apartment Number is required",
             }),
           streetNumber: Joi.number()
             .integer()
@@ -35,7 +35,7 @@ const createUserContact = {
               "number.empty": "Street Number should not be empty",
               "number.min": `Street Number should be  greater than {#limit}`,
               "number.max": `Street Number should be  maximum 10 digits long`,
-              "any.required": "Street Nunber is required",
+              "any.required": "Street Number is required",
             }),
           streetName: Joi.string().required().min(1).max(50).messages({
             "string.empty": "Street Name should not be empty",
@@ -58,6 +58,7 @@ const createUserContact = {
             "string.length": `Country length should be exactly 2`,
             "any.required": "Country is required",
           }),
+          expiryDate: Joi.date().allow(null),
         })
       )
       .required()
@@ -71,7 +72,7 @@ const createUserContact = {
       .messages({
         "string.length": "Phone Number should not be length of 10",
         "string.empty": "Phone Number should not be empty",
-        "any.required": "Phone Nunber is required",
+        "any.required": "Phone Number is required",
         "string.pattern.base": `Phone Number should be a Numbers only`,
       }),
     email: Joi.string()
@@ -79,7 +80,7 @@ const createUserContact = {
       .required()
       .messages({
         "string.email":
-          "Email must in correct format. example: email@example.com",
+          "Email must be in correct format. example: email@example.com",
         "string.empty": "Email should not be empty",
         "any.required": "Email is required",
       }),

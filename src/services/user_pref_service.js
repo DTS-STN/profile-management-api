@@ -34,7 +34,7 @@ const createUserPref = async (req, res) => {
     if (userPersonalInfo.UserPref) {
       return res.status(httpStatus.BAD_REQUEST).send({
         status: httpStatus.BAD_REQUEST,
-        message: "User Pref already exists!",
+        message: "User Preferences already exists!",
       });
     }
 
@@ -47,7 +47,7 @@ const createUserPref = async (req, res) => {
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
         userPref_uuid: userPref.uuid,
-        message: "User Pref added",
+        message: "Your submission has been successfully submitted.",
       });
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
@@ -100,7 +100,7 @@ const getUserPref = async (req, res) => {
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
         status: httpStatus.NOT_FOUND,
-        message: "User Pref not found!",
+        message: "User Preferences not found!",
       });
     }
   } catch (err) {
@@ -133,26 +133,27 @@ const updateUserPref = async (req, res) => {
     if (!userPersonalInfo.UserPref) {
       return res.status(httpStatus.NOT_FOUND).send({
         status: httpStatus.NOT_FOUND,
-        message: "User Pref not found!",
+        message: "User Preferences not found!",
       });
     }
 
     if (userPersonalInfo && userPersonalInfo.UserPref) {
       const updatePrefInfo = await userPersonalInfo.UserPref.update(req.body);
       if (updatePrefInfo) {
-        return res
-          .status(httpStatus.OK)
-          .send({ status: httpStatus.OK, message: "user pref updated" });
+        return res.status(httpStatus.OK).send({
+          status: httpStatus.OK,
+          message: "Changes to your account has been successfully updated.",
+        });
       } else {
         return res.status(httpStatus.NOT_MODIFIED).send({
           status: httpStatus.NOT_MODIFIED,
-          message: "Failed to update user pref",
+          message: "Failed to update user Preferences",
         });
       }
     } else {
       return res
         .status(httpStatus.NOT_FOUND)
-        .send({ message: "User or User pref not found!" });
+        .send({ message: "User or User Preferences not found!" });
     }
   } catch (err) {
     logger.error(err);

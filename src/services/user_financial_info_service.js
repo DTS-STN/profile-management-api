@@ -44,7 +44,7 @@ const createUserFinancialInfo = async (req, res) => {
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
         userFinancialInfo_uuid: userFinancialInfo.uuid,
-        message: "Financial Info added",
+        message: "Your submission has been successfully submitted.",
       });
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
@@ -85,7 +85,7 @@ const getUserFinancialInfo = async (req, res) => {
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
         status: httpStatus.NOT_FOUND,
-        message: "User or  Financial Info not found!",
+        message: "User or  Financial Information not found!",
       });
     }
   } catch (err) {
@@ -115,19 +115,20 @@ const updateUserFinancialInfo = async (req, res) => {
       );
 
       if (updateUserFinancialInfo) {
-        return res
-          .status(httpStatus.OK)
-          .send({ status: httpStatus.OK, message: "Financial Info updated" });
+        return res.status(httpStatus.OK).send({
+          status: httpStatus.OK,
+          message: "Changes to your account has been successfully updated.",
+        });
       } else {
         return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
           status: httpStatus.INTERNAL_SERVER_ERROR,
-          message: "Failed to update financial info",
+          message: "Failed to update financial Information",
         });
       }
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
         status: httpStatus.NOT_FOUND,
-        message: "User financial Info not found!",
+        message: "User financial Information not found!",
       });
     }
   } catch (err) {

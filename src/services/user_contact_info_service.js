@@ -53,7 +53,7 @@ const createUserContact = async (req, res) => {
         await t.commit();
         return res.status(httpStatus.CREATED).send({
           status: httpStatus.CREATED,
-          message: "Contact information added",
+          message: "Your submission has been successfully submitted.",
         });
       } else {
         await t.rollback();
@@ -183,7 +183,7 @@ const updateUserContact = async (req, res) => {
         await t.commit();
         return res.status(httpStatus.OK).send({
           status: httpStatus.OK,
-          message: "Contact information updated",
+          message: "Changes to your account has been successfully updated.",
         });
       }
     } else {
