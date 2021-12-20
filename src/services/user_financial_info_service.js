@@ -122,6 +122,7 @@ const updateUserFinancialInfo = async (req, res) => {
       if (updateUserFinancialInfo) {
         return res.status(httpStatus.OK).send({
           status: httpStatus.OK,
+          data: updateUserFinancialInfo,
           message: "Changes to your account has been successfully updated.",
         });
       } else {

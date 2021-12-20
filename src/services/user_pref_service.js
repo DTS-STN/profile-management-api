@@ -147,6 +147,7 @@ const updateUserPref = async (req, res) => {
       if (updatePrefInfo) {
         return res.status(httpStatus.OK).send({
           status: httpStatus.OK,
+          data: userPersonalInfo.UserPref,
           message: "Changes to your account has been successfully updated.",
         });
       } else {
