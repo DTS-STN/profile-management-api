@@ -8,23 +8,18 @@ const createUserContact = {
         Joi.object().keys({
           addressTypeCode: Joi.number().required().min(1).max(2).messages({
             "number.base": "Address Type should be a Number",
-            "number.empty": "Address Type  should not be empty",
-            "number.min": `Address Type  should be  greater than or equal to {#limit}`,
-            "number.max": `Address Type  should be  less than or equal to {#limit}`,
-            "any.required": "Address Type  is required",
+            "number.empty": "Address Type should not be empty",
+            "number.min": `Address Type should be greater than or equal to {#limit}`,
+            "number.max": `Address Type should be less than or equal to {#limit}`,
+            "any.required": "Address Type is required",
           }),
-          aptNumber: Joi.number()
-            .allow(null)
-            .integer()
-            .min(1)
-            .max(9999999999)
-            .messages({
-              "number.base": "Apartment Number should be a Number",
-              "number.empty": "Apartment Number should not be empty",
-              "number.min": `Apartment Number should be  greater than {#limit}`,
-              "number.max": `Apartment Number should be  maximum 10 digits long`,
-              "any.required": "Apartment Number is required",
-            }),
+          aptNumber: Joi.number().allow(null).min(1).max(9999999999).messages({
+            "number.base": "Apartment Number should be a Number",
+            "number.empty": "Apartment Number should not be empty",
+            "number.min": `Apartment Number should be greater than {#limit}`,
+            "number.max": `Apartment Number should be a maximum of 10 digits long`,
+            "any.required": "Apartment Nunber is required",
+          }),
           streetNumber: Joi.number()
             .integer()
             .min(1)
@@ -33,14 +28,14 @@ const createUserContact = {
             .messages({
               "number.base": "Street Number should be a Number",
               "number.empty": "Street Number should not be empty",
-              "number.min": `Street Number should be  greater than {#limit}`,
-              "number.max": `Street Number should be  maximum 10 digits long`,
+              "number.min": `Street Number should be greater than {#limit}`,
+              "number.max": `Street Number should be a maximum of 10 digits long`,
               "any.required": "Street Number is required",
             }),
           streetName: Joi.string().required().min(1).max(50).messages({
             "string.empty": "Street Name should not be empty",
-            "string.min": `Street Name s Should be at least {#limit} characters long`,
-            "string.max": `Street Name s Should be at most {#limit} characters long`,
+            "string.min": `Street Name should be at least {#limit} characters long`,
+            "string.max": `Street Name should be at most {#limit} characters long`,
             "any.required": "Street Name is required",
           }),
           city: Joi.string().required().min(1).max(50).messages({
@@ -70,17 +65,16 @@ const createUserContact = {
       .pattern(/^[0-9]+$/)
       .required()
       .messages({
-        "string.length": "Phone Number should not be length of 10",
+        "string.length": "Phone Number should be 10 digits long",
         "string.empty": "Phone Number should not be empty",
         "any.required": "Phone Number is required",
-        "string.pattern.base": `Phone Number should be a Numbers only`,
+        "string.pattern.base": `Phone Number should be Numbers only`,
       }),
     email: Joi.string()
       .email({ tlds: { allow: false } })
       .required()
       .messages({
-        "string.email":
-          "Email must be in correct format. example: email@example.com",
+        "string.email": "Email format is incorrect. Example: email@example.com",
         "string.empty": "Email should not be empty",
         "any.required": "Email is required",
       }),
@@ -98,10 +92,10 @@ const updateUserContact = {
           Joi.object().keys({
             addressTypeCode: Joi.number().required().min(1).max(2).messages({
               "number.base": "Address Type should be a Number",
-              "number.empty": "Address Type  should not be empty",
-              "number.min": `Address Type  should be  greater than or equal to {#limit}`,
-              "number.max": `Address Type  should be  less than or equal to {#limit}`,
-              "any.required": "Address Type  is required",
+              "number.empty": "Address Type should not be empty",
+              "number.min": `Address Type should be greater than or equal to {#limit}`,
+              "number.max": `Address Type should be less than or equal to {#limit}`,
+              "any.required": "Address Type is required",
             }),
             aptNumber: Joi.number()
               .allow(null)
@@ -110,8 +104,8 @@ const updateUserContact = {
               .messages({
                 "number.base": "Apartment Number should be a Number",
                 "number.empty": "Apartment Number should not be empty",
-                "number.min": `Apartment Number should be  greater than {#limit}`,
-                "number.max": `Apartment Number should be  maximum 10 digits long`,
+                "number.min": `Apartment Number should be greater than {#limit}`,
+                "number.max": `Apartment Number should be a maximum of 10 digits long`,
                 "any.required": "Apartment Nunber is required",
               }),
             streetNumber: Joi.number()
@@ -122,14 +116,14 @@ const updateUserContact = {
               .messages({
                 "number.base": "Street Number should be a Number",
                 "number.empty": "Street Number should not be empty",
-                "number.min": `Street Number should be  greater than {#limit}`,
-                "number.max": `Street Number should be  maximum 10 digits long`,
-                "any.required": "Street Nunber is required",
+                "number.min": `Street Number should be greater than {#limit}`,
+                "number.max": `Street Number should be a maximum of 10 digits long`,
+                "any.required": "Street Number is required",
               }),
             streetName: Joi.string().required().min(1).max(50).messages({
               "string.empty": "Street Name should not be empty",
-              "string.min": `Street Name s Should be at least {#limit} characters long`,
-              "string.max": `Street Name s Should be at most {#limit} characters long`,
+              "string.min": `Street Name should be at least {#limit} characters long`,
+              "string.max": `Street Name should be at most {#limit} characters long`,
               "any.required": "Street Name is required",
             }),
             city: Joi.string().required().min(1).max(50).messages({
@@ -159,17 +153,17 @@ const updateUserContact = {
         .pattern(/^[0-9]+$/)
         .required()
         .messages({
-          "string.length": "Phone Number should not be length of 10",
+          "string.length": "Phone Number should be 10 digits long",
           "string.empty": "Phone Number should not be empty",
-          "any.required": "Phone Nunber is required",
-          "string.pattern.base": `Phone Number should be a Numbers only`,
+          "any.required": "Phone Number is required",
+          "string.pattern.base": `Phone Number should be Numbers only`,
         }),
       email: Joi.string()
         .email({ tlds: { allow: false } })
         .required()
         .messages({
           "string.email":
-            "Email format is incorrect. example: email@example.com",
+            "Email format is incorrect. Example: email@example.com",
           "string.empty": "Email should not be empty",
           "any.required": "Email is required",
         }),

@@ -54,6 +54,7 @@ const createUserContact = async (req, res) => {
         return res.status(httpStatus.CREATED).send({
           status: httpStatus.CREATED,
           message: "Your submission has been successfully submitted.",
+          data: createContact,
         });
       } else {
         await t.rollback();
@@ -113,11 +114,17 @@ const getUserContact = async (req, res) => {
         attributes: ["phone", "email"],
         where: { uuid: userPersonalInfo.UserContact.uuid },
       });
-      return res.status(httpStatus.OK).send(userContact);
+      return res.status(httpStatus.OK).send({
+        status: httpStatus.OK,
+        firstName: userPersonalInfo.firstName,
+        userContact,
+      });
     } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "User or contact info not found!" });
+      return res.status(httpStatus.NOT_FOUND).send({
+        status: httpStatus.NOT_FOUND,
+        firstName: userPersonalInfo.firstName,
+        message: "User or contact info not found!",
+      });
     }
   } catch (err) {
     logger.error(err);
@@ -184,6 +191,7 @@ const updateUserContact = async (req, res) => {
         return res.status(httpStatus.OK).send({
           status: httpStatus.OK,
           message: "Changes to your account has been successfully updated.",
+          data: updateContact,
         });
       }
     } else {

@@ -46,7 +46,7 @@ const createUserPref = async (req, res) => {
       await t.commit();
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
-        userPref_uuid: userPref.uuid,
+        data: userPref,
         message: "Your submission has been successfully submitted.",
       });
     } else {
@@ -96,10 +96,15 @@ const getUserPref = async (req, res) => {
     }
 
     if (userPersonalInfo && userPersonalInfo.UserPref) {
-      return res.status(httpStatus.CREATED).send(userPersonalInfo.UserPref);
+      return res.status(httpStatus.CREATED).send({
+        status: httpStatus.OK,
+        firstName: userPersonalInfo.firstName,
+        userPref: userPersonalInfo.UserPref,
+      });
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
         status: httpStatus.NOT_FOUND,
+        firstName: userPersonalInfo.firstName,
         message: "User Preferences not found!",
       });
     }

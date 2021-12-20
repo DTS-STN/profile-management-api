@@ -12,11 +12,11 @@ const updateUserFinancialInfo = {
   }),
   body: Joi.object()
     .keys({
-      transitNumber: Joi.number().min(10000).max(999999).required().messages({
+      transitNumber: Joi.number().min(10000).max(99999).required().messages({
         "number.base": "Branch or Transit Number should be a Number",
         "number.empty": "Branch or Transit Number should not be empty",
-        "number.min": `Branch or Transit Number should be  greater than {#limit}`,
-        "number.max": `Branch or Transit Number should be  6 digits long`,
+        "number.min": `Branch or Transit Number should be 5 digits long`,
+        "number.max": `Branch or Transit Number should be 5 digits long`,
         "any.required": "Branch or Transit Number is required",
       }),
       institutionNumber: Joi.string()
@@ -26,7 +26,7 @@ const updateUserFinancialInfo = {
         .messages({
           "any.regex": "Financial Institution Number should be a Number",
           "string.empty": "Financial Institution Number should not be empty",
-          "string.length": `Financial Institution Number length should be exactly 3`,
+          "string.length": `Financial Institution Number should be 3 digits long`,
           "any.required": "Financial Institution Number is required",
           "string.pattern.base": `Financial Institution Number should be a Number`,
         }),
@@ -37,8 +37,8 @@ const updateUserFinancialInfo = {
         .messages({
           "number.base": "Account Number should be a Number",
           "number.empty": "Account Number should not be empty",
-          "number.min": `Account Number should be  9 digits long`,
-          "number.max": `Account Number should be  13 digits long`,
+          "number.min": `Account Number should be 9 digits long`,
+          "number.max": `Account Number should be 13 digits long`,
           "any.required": "Account Number is required",
         }),
     })
@@ -50,21 +50,21 @@ const createUserFinancialInfo = {
     id: Joi.required(),
   }),
   body: Joi.object().keys({
-    transitNumber: Joi.number().min(10000).max(999999).required().messages({
+    transitNumber: Joi.number().min(10000).max(99999).required().messages({
       "number.base": "Branch or Transit Number should be a Number",
       "number.empty": "Branch or Transit Number should not be empty",
-      "number.min": `Branch or Transit Number should be  greater than {#limit}`,
-      "number.max": `Branch or Transit Number should be  6 digits long`,
+      "number.min": `Branch or Transit Number should be 5 digits long`,
+      "number.max": `Branch or Transit Number should be 5 digits long`,
       "any.required": "Branch or Transit Number is required",
     }),
     institutionNumber: Joi.string()
       .length(3)
-      .pattern(/^[0-9]+$/)
+      .regex(/^[0-9]+$/)
       .required()
       .messages({
         "any.regex": "Financial Institution Number should be a Number",
         "string.empty": "Financial Institution Number should not be empty",
-        "string.length": `Financial Institution Number length should be exactly 3`,
+        "string.length": `Financial Institution Number should be 3 digits long`,
         "any.required": "Financial Institution Number is required",
         "string.pattern.base": `Financial Institution Number should be a Number`,
       }),
@@ -73,10 +73,10 @@ const createUserFinancialInfo = {
       .max(9999999999999)
       .required()
       .messages({
-        "number.regex": "Account Number should be a Number",
+        "number.base": "Account Number should be a Number",
         "number.empty": "Account Number should not be empty",
-        "number.min": `Account Number should be  9 digits long`,
-        "number.max": `Account Number should be  13 digits long`,
+        "number.min": `Account Number should be 9 digits long`,
+        "number.max": `Account Number should be 13 digits long`,
         "any.required": "Account Number is required",
       }),
   }),

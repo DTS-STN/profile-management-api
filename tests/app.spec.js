@@ -41,7 +41,7 @@ describe("app test", () => {
     expect(response.body).toEqual({
       code: httpStatus.BAD_REQUEST,
       message:
-        "Web language is required, Correspondence language is required, Braille/TTY is required, Preferred Currency Code is required, timeZoneCode is required, Time Format Code is required",
+        "Web language is required, Correspondence language is required, Braille/TTY is required, Preferred Currency Code is required, Time Zone is required, Time Format Code is required",
     });
   });
 

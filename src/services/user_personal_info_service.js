@@ -62,9 +62,11 @@ const getUserPersonalInfo = async (req, res) => {
     if (userPersonalInfo) {
       return res.status(httpStatus.OK).send({ userPersonalInfo });
     } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "UserPersonalInfo not found!" });
+      return res.status(httpStatus.NOT_FOUND).send({
+        status: httpStatus.NOT_FOUND,
+        firstName: userPersonalInfo.firstName,
+        message: "UserPersonalInfo not found!",
+      });
     }
   } catch (err) {
     logger.error(err);

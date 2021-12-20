@@ -43,7 +43,7 @@ const createUserFinancialInfo = async (req, res) => {
       await t.commit();
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
-        userFinancialInfo_uuid: userFinancialInfo.uuid,
+        data: userFinancialInfo,
         message: "Your submission has been successfully submitted.",
       });
     } else {
@@ -81,10 +81,15 @@ const getUserFinancialInfo = async (req, res) => {
     });
 
     if (userPersonalInfo && userPersonalInfo.UserFinancialInfo) {
-      return res.status(httpStatus.OK).send(userPersonalInfo.UserFinancialInfo);
+      return res.status(httpStatus.OK).send({
+        status: httpStatus.OK,
+        firstName: userPersonalInfo.firstName,
+        userFinancialInfo: userPersonalInfo.UserFinancialInfo,
+      });
     } else {
       return res.status(httpStatus.NOT_FOUND).send({
         status: httpStatus.NOT_FOUND,
+        firstName: userPersonalInfo.firstName,
         message: "User or  Financial Information not found!",
       });
     }
