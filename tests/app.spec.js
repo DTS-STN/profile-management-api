@@ -1,8 +1,14 @@
 const request = require("supertest");
+const mockingoose = require("mockingoose");
 const app = require("../src/app");
 const httpStatus = require("http-status");
 
 describe("app test", () => {
+  beforeEach(() => {
+    mockingoose.resetAll();
+    jest.clearAllMocks();
+  });
+
   it("should test that server is running", async () => {
     const response = await request(app).get("/");
     expect(response.statusCode).toBe(httpStatus.OK);
