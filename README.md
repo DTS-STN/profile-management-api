@@ -28,15 +28,11 @@ $ npm run start
 
 ```NODE_ENV```:  specify environment prod or test or dev
 
-```ACCESS_TOKEN_SECRET```:  generated token secret for now
+```COSMOS_KEY```:  Cosmos Database key
 
-```DB_USER```:  Database user
+```COSMOS_PORT```:  Cosmos Database port
 
-```DB_PASS```:  Database password
-
-```DB_SERVER```:  Database Server
-
-```DB_NAME```:  Database name
+```COSMOS_DB_NAME```:  Cosmos Database name
 
  
 ## Swagger 
