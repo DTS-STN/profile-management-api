@@ -6,8 +6,11 @@ require("dotenv/config");
 const routes = require("./routes/v1/");
 const { errorConverter, errorHandler } = require("./middlewares/error");
 const ApiError = require("./utils/ApiError");
+const bodyParser = require("body-parser");
 
 const app = express();
+
+app.use(bodyParser.json());
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

@@ -1,149 +1,151 @@
 const httpStatus = require("http-status");
 const logger = require("../config/logger");
 
-const {
-  UserPersonalInfo,
-  UserFinancialInfo,
-  sequelize,
-} = require("../db/models/sequelize");
+const PersonalInfo = require("../db/models/PersonalInfo");
+const FinancialInfo = require("../db/models/FinancialInfo");
 
-const createUserFinancialInfo = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
+const db = require("mongoose");
+require("../db/models/mongo").connect();
+
+const get = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-  const t = await sequelize.transaction();
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: req.params.id,
+    });
+  }
 
-  try {
-    const userInfo = await UserPersonalInfo.findOne({
-      include: [UserFinancialInfo],
-      where: { uuid: req.params.id },
+  await FinancialInfo.findOne({ id })
+    .select("institutionNumber transitNumber accountNumber -_id")
+    .exec()
+    .then((userFinancialInfo) => {
+      res.json({ userFinancialInfo: userFinancialInfo });
+    })
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
+};
+
+const create = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const financialInfoBody = req.body;
+  financialInfoBody.id = id;
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-    if (userInfo && userInfo.UserFinancialInfo) {
-      return res.status(httpStatus.BAD_REQUEST).send({
-        status: httpStatus.BAD_REQUEST,
-        message: "Financial Info already exists",
-      });
-    }
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: req.params.id,
+    });
+  }
 
-    if (userInfo && !userInfo.UserFinancialInfo) {
-      const userFinancialInfo = await userInfo.createUserFinancialInfo(
-        req.body,
-        {
-          transaction: t,
-        }
-      );
+  const financialInfoFound = await FinancialInfo.findOne({ id })
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
 
-      await t.commit();
+  if (financialInfoFound) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Financial Info already exists",
+      id: req.params.id,
+    });
+  }
+
+  var financialInfo = new FinancialInfo(financialInfoBody);
+  await financialInfo
+    .save()
+    .then(async () => {
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
-        data: userFinancialInfo,
         message: "Your submission has been successfully submitted.",
       });
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        message: "User not found!",
-        userInfo_uuid: req.params.id,
-      });
-    }
-  } catch (err) {
-    await t.rollback();
-    logger.error(err);
-  }
+    })
+    .catch(async (err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
 };
 
-const getUserFinancialInfo = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
+const update = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [
-        {
-          model: UserFinancialInfo,
-          attributes: ["institutionNumber", "transitNumber", "accountNumber"],
-        },
-      ],
-      where: { uuid: req.params.id },
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: req.params.id,
     });
+  }
 
-    if (userPersonalInfo && userPersonalInfo.UserFinancialInfo) {
+  FinancialInfo.findOneAndUpdate({ id }, req.body)
+    .then(() => {
       return res.status(httpStatus.OK).send({
         status: httpStatus.OK,
-        firstName: userPersonalInfo.firstName,
-        userFinancialInfo: userPersonalInfo.UserFinancialInfo,
+        data: req.body,
+        message: "Changes to your account has been successfully updated.",
       });
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        firstName: userPersonalInfo.firstName,
-        message: "User or  Financial Information not found!",
-      });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
-};
-
-const updateUserFinancialInfo = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
     })
-    .catch(function (err) {
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
-
-  try {
-    const userInfo = await UserPersonalInfo.findOne({
-      include: [UserFinancialInfo],
-      where: { uuid: req.params.id },
-    });
-
-    if (userInfo && userInfo.UserFinancialInfo) {
-      const updateUserFinancialInfo = await userInfo.UserFinancialInfo.update(
-        req.body
-      );
-
-      if (updateUserFinancialInfo) {
-        return res.status(httpStatus.OK).send({
-          status: httpStatus.OK,
-          data: updateUserFinancialInfo,
-          message: "Changes to your account has been successfully updated.",
-        });
-      } else {
-        return res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
-          status: httpStatus.INTERNAL_SERVER_ERROR,
-          message: "Failed to update financial Information",
-        });
-      }
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        message: "User financial Information not found!",
-      });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
 };
 
 module.exports = {
-  getUserFinancialInfo,
-  updateUserFinancialInfo,
-  createUserFinancialInfo,
+  get,
+  create,
+  update,
 };

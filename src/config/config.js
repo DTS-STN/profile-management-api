@@ -12,6 +12,9 @@ const envVarsSchema = Joi.object()
     DB_USER: Joi.string().required().description("db user"),
     DB_PASS: Joi.string().required().description("db pass"),
     DB_SERVER: Joi.string().required().description("db server"),
+    COSMOS_DB_NAME: Joi.string().required().description("cosmos db name"),
+    COSMOS_KEY: Joi.string().required().description("cosmos db key"),
+    COSMOS_PORT: Joi.string().required().description("cosmos db port"),
   })
   .unknown();
 
@@ -30,4 +33,7 @@ module.exports = {
   user: envVars.DB_USER,
   password: envVars.DB_PASS,
   server: envVars.DB_SERVER,
+  cosmosDatabase: envVars.COSMOS_DB_NAME,
+  cosmosKey: envVars.COSMOS_KEY,
+  cosmosPort: envVars.COSMOS_PORT,
 };

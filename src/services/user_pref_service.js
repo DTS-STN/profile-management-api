@@ -1,173 +1,150 @@
 const httpStatus = require("http-status");
 const logger = require("../config/logger");
 
-const {
-  UserPersonalInfo,
-  UserPref,
-  sequelize,
-} = require("../db/models/sequelize");
+const PersonalInfo = require("../db/models/PersonalInfo");
+const Pref = require("../db/models/UserPref");
+const db = require("mongoose");
+require("../db/models/mongo").connect();
 
-const createUserPref = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
+const get = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
+
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id,
+    });
+  }
+
+  Pref.findOne({ id })
+    .select(
+      "webLanguageCode correspondenceLanguageCode brailleTtyKeyboard preferredCurrencyCode  timeZoneCode timeFormatCode  -_id"
+    )
+    .exec()
+    .then((userPref) => {
+      res.json({ userPref: userPref });
     })
-    .catch(function (err) {
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
+};
+
+const create = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const userPrefBody = req.body;
+  userPrefBody.id = id;
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-  const t = await sequelize.transaction();
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id,
+    });
+  }
 
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [UserPref],
-      where: { uuid: req.params.id },
+  const userPrefsFound = await Pref.findOne({ id })
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-    if (!userPersonalInfo) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ status: httpStatus.NOT_FOUND, message: "User not found!" });
-    }
+  if (userPrefsFound) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "User Pref. already exists",
+      id: req.params.id,
+    });
+  }
 
-    if (userPersonalInfo.UserPref) {
-      return res.status(httpStatus.BAD_REQUEST).send({
-        status: httpStatus.BAD_REQUEST,
-        message: "User Preferences already exists!",
-      });
-    }
-
-    if (userPersonalInfo) {
-      const userPref = await userPersonalInfo.createUserPref(req.body, {
-        transaction: t,
-      });
-
-      await t.commit();
-      return res.status(httpStatus.CREATED).send({
+  const userPref = new Pref(userPrefBody);
+  await userPref
+    .save()
+    .then(async () => {
+      res.json({
         status: httpStatus.CREATED,
-        data: userPref,
         message: "Your submission has been successfully submitted.",
       });
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        message: "User not found!",
-        userPersonalInfo_uuid: req.params.id,
-      });
-    }
-  } catch (err) {
-    await t.rollback();
-    logger.error(err);
-  }
+    })
+    .catch(async (err) => {
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
 };
 
-const getUserPref = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
+const update = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [
-        {
-          model: UserPref,
-          attributes: [
-            "webLanguageCode",
-            "correspondenceLanguageCode",
-            "brailleTtyKeyboard",
-            "preferredCurrencyCode",
-            "timeZoneCode",
-            "timeFormatCode",
-          ],
-        },
-      ],
-      where: { uuid: req.params.id },
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: id,
     });
-    if (!userPersonalInfo) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ status: httpStatus.NOT_FOUND, message: "User not found!" });
-    }
+  }
 
-    if (userPersonalInfo && userPersonalInfo.UserPref) {
-      return res.status(httpStatus.CREATED).send({
+  Pref.findOneAndUpdate({ id }, req.body)
+    .then(() => {
+      res.json({
         status: httpStatus.OK,
-        firstName: userPersonalInfo.firstName,
-        userPref: userPersonalInfo.UserPref,
+        data: req.body,
+        message: "Changes to your account has been successfully updated.",
       });
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        firstName: userPersonalInfo.firstName,
-        message: "User Preferences not found!",
-      });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
-};
-
-const updateUserPref = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
     })
-    .catch(function (err) {
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
-
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [UserPref],
-      where: { uuid: req.params.id },
-    });
-
-    if (!userPersonalInfo) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ status: httpStatus.NOT_FOUND, message: "User not found!" });
-    }
-
-    if (!userPersonalInfo.UserPref) {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        message: "User Preferences not found!",
-      });
-    }
-
-    if (userPersonalInfo && userPersonalInfo.UserPref) {
-      const updatePrefInfo = await userPersonalInfo.UserPref.update(req.body);
-      if (updatePrefInfo) {
-        return res.status(httpStatus.OK).send({
-          status: httpStatus.OK,
-          data: userPersonalInfo.UserPref,
-          message: "Changes to your account has been successfully updated.",
-        });
-      } else {
-        return res.status(httpStatus.NOT_MODIFIED).send({
-          status: httpStatus.NOT_MODIFIED,
-          message: "Failed to update user Preferences",
-        });
-      }
-    } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "User or User Preferences not found!" });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
 };
 
 module.exports = {
-  getUserPref,
-  updateUserPref,
-  createUserPref,
+  get,
+  create,
+  update,
 };

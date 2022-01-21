@@ -1,69 +1,18 @@
-"use strict";
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const { Model } = require("sequelize");
+const userPrefSchema = new Schema(
+  {
+    id: String,
+    webLanguageCode: Number,
+    correspondenceLanguageCode: Number,
+    brailleTtyKeyboard: Number,
+    preferredCurrencyCode: Number,
+    timeZoneCode: String,
+    timeFormatCode: Number,
+  },
+  { timestamps: true, collection: "UserPreference" }
+);
 
-module.exports = (sequelize, DataTypes) => {
-  class UserPref extends Model {}
-
-  UserPref.init(
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      webLanguageCode: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      correspondenceLanguageCode: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-
-      brailleTtyKeyboard: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-      },
-      preferredCurrencyCode: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-
-      timeZoneCode: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      timeFormatCode: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-
-      // start: audit and common info - applies to all tables
-      effectiveDate: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
-      expiryDate: {
-        type: DataTypes.DATE,
-        allowNull: true,
-      },
-      uuid: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-      },
-      // end: audit and common info - applies to all tables
-      // note: createAt and modifiedAt created automatically by sequeline
-    },
-    {
-      sequelize,
-      modelName: "UserPref",
-      tableName: "user_pref",
-      underscored: true,
-      freezeTableName: true,
-    }
-  );
-
-  return UserPref;
-};
+const UserPref = mongoose.model("UserPref", userPrefSchema);
+module.exports = UserPref;

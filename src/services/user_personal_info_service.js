@@ -1,151 +1,108 @@
 const httpStatus = require("http-status");
 const logger = require("../config/logger");
 
-const { UserPersonalInfo, sequelize } = require("../db/models/sequelize");
+const PersonalInfo = require("../db/models/PersonalInfo");
 
-const createUserPersonalInfo = async (body, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
+const db = require("mongoose");
+require("../db/models/mongo").connect();
+
+const getAll = async (req, res) => {
+  PersonalInfo.find({})
+    .select("firstName middleName lastName")
+    .exec()
+    .then((userPersonalInfos) => {
+      res.json(userPersonalInfos);
     })
-    .catch(function (err) {
-      logger.error(err);
+    .catch((err) => {
+      res.status(500).send(err);
     });
-
-  const t = await sequelize.transaction();
-
-  try {
-    const userPersonalInfo = await UserPersonalInfo.create(
-      body.userPersonalInfo[0],
-      {
-        transaction: t,
-      }
-    );
-
-    await t.commit();
-    return res.status(httpStatus.CREATED).send({
-      status: httpStatus.CREATED,
-      userPersonalInfo_uuid: userPersonalInfo.uuid,
-    });
-  } catch (err) {
-    await t.rollback();
-    logger.error(err);
-  }
 };
 
-const getUserPersonalInfo = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
+const get = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .select(
+      "firstName middleName lastName dob sinNumber maritalStatusCode -_id"
+    )
+    .exec()
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [],
-      where: { uuid: req.params.id },
-      attributes: [
-        "uuid",
-        "firstName",
-        "middleName",
-        "lastName",
-        "dob",
-        "sinNumber",
-        "maritalStatusCode",
-      ],
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id,
     });
+  }
 
-    if (userPersonalInfo) {
-      return res.status(httpStatus.OK).send({ userPersonalInfo });
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        firstName: userPersonalInfo.firstName,
-        message: "UserPersonalInfo not found!",
+  return res.status(httpStatus.OK).send(personalInfo);
+};
+
+const create = async (req, res) => {
+  const { firstName, middleName, lastName, dob, sinNumber, maritalStatusCode } =
+    req.body.userPersonalInfo[0];
+
+  const personalInfo = PersonalInfo({
+    firstName,
+    middleName,
+    lastName,
+    dob,
+    sinNumber,
+    maritalStatusCode,
+  });
+  await personalInfo
+    .save()
+    .then(async () => {
+      res.json({
+        status: httpStatus.CREATED,
+        message: "Your submission has been successfully submitted.",
       });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
+    })
+    .catch(async (err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
 };
 
-const getAllUserPersonalInfo = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
-      logger.error(err);
-    });
+const update = async (req, res) => {
+  const { id } = req.params;
 
-  try {
-    const userPersonalInfos = await UserPersonalInfo.findAll({
-      include: [],
-      attributes: ["uuid", "firstName", "middleName", "lastName"],
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
     });
-
-    if (userPersonalInfos) {
-      return res.status(httpStatus.OK).send({ userPersonalInfos });
-    } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "UserPersonalInfo not found!" });
-    }
-  } catch (err) {
-    logger.error(err);
   }
-};
 
-const updateUserPersonalInfo = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
-      logger.error(err);
-    });
-
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [],
-      where: { uuid: req.params.id },
-    });
-
-    if (userPersonalInfo) {
-      const updateUserPersonalInfo = await UserPersonalInfo.update(req.body, {
-        where: {
-          uuid: req.params.id,
-        },
+  PersonalInfo.findOneAndUpdate({ _id: id }, req.body)
+    .then(() => {
+      res.json({
+        status: 200,
+        message: "Changes to your account has been successfully updated.",
       });
-      if (updateUserPersonalInfo > 0) {
-        return res
-          .status(httpStatus.OK)
-          .send({ status: httpStatus.OK, message: "updated" });
-      } else {
-        return res.status(httpStatus.NOT_MODIFIED).send({
-          status: httpStatus.NOT_MODIFIED,
-          message: "Failed to update",
-        });
-      }
-    } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "UserPersonalInfo not found!" });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
+    })
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
 };
 
 module.exports = {
-  createUserPersonalInfo,
-  getUserPersonalInfo,
-  getAllUserPersonalInfo,
-  updateUserPersonalInfo,
+  getAll,
+  get,
+  create,
+  update,
 };

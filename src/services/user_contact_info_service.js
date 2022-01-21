@@ -1,212 +1,150 @@
 const httpStatus = require("http-status");
 const logger = require("../config/logger");
 
-const {
-  UserPersonalInfo,
-  UserContact,
-  UserAddress,
-  sequelize,
-} = require("../db/models/sequelize");
+const Contact = require("../db/models/ContactInfo");
+const PersonalInfo = require("../db/models/PersonalInfo");
 
-const createUserContact = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
-      logger.error(err);
+const db = require("mongoose");
+require("../db/models/mongo").connect();
+
+const get = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
     });
-
-  const t = await sequelize.transaction();
-
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [
-        {
-          model: UserContact,
-          include: [{ model: UserAddress, as: "userAddresses" }],
-        },
-      ],
-      where: { uuid: req.params.id },
-    });
-
-    if (!userPersonalInfo) {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        message: "User not found!",
-        userPersonalInfo_uuid: req.params.id,
-      });
-    }
-
-    if (userPersonalInfo && !userPersonalInfo.UserContact) {
-      const createContact = await userPersonalInfo.createUserContact(
-        req.body,
-        {
-          include: [{ model: UserAddress, as: "userAddresses" }],
-        },
-        {
-          transaction: t,
-        }
-      );
-      if (createContact) {
-        await t.commit();
-        return res.status(httpStatus.CREATED).send({
-          status: httpStatus.CREATED,
-          message: "Your submission has been successfully submitted.",
-          data: createContact,
-        });
-      } else {
-        await t.rollback();
-        return res.status(httpStatus.NOT_MODIFIED).send({
-          status: httpStatus.NOT_MODIFIED,
-          message: "Failed to add contact info",
-        });
-      }
-    } else {
-      return res.status(httpStatus.BAD_REQUEST).send({
-        status: httpStatus.BAD_REQUEST,
-        message:
-          "User Contact already exists, use update method to add additional address!",
-        userPersonalInfo_uuid: req.params.id,
-      });
-    }
-  } catch (err) {
-    await t.rollback();
-    logger.error(err);
   }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
+
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: req.params.id,
+    });
+  }
+
+  Contact.findOne({ id })
+    .select("phone email userAddresses -_id")
+    .exec()
+    .then((userContact) => {
+      res.json({ userContact: userContact });
+    })
+    .catch((err) => {
+      logger.error(err);
+      res.status(500).send(err);
+    });
 };
 
-const getUserContact = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
-    })
-    .catch(function (err) {
+const create = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const contactDetails = req.body;
+  contactDetails.id = id;
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [{ model: UserContact }],
-      where: { uuid: req.params.id },
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: req.params.id,
+    });
+  }
+
+  const contactInfoFound = await Contact.findOne({ id })
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
 
-    if (userPersonalInfo && userPersonalInfo.UserContact) {
-      const userContact = await UserContact.findOne({
-        include: [
-          {
-            model: UserAddress,
-            as: "userAddresses",
-            attributes: [
-              "addressTypeCode",
-              "aptNumber",
-              "streetNumber",
-              "streetName",
-              "postalCode",
-              "city",
-              "countryCode",
-            ],
-            where: { expiryDate: null },
-          },
-        ],
-        attributes: ["phone", "email"],
-        where: { uuid: userPersonalInfo.UserContact.uuid },
+  if (contactInfoFound) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Contact Info already exists",
+      id: req.params.id,
+    });
+  }
+  const contact = new Contact(contactDetails);
+  await contact
+    .save()
+    .then(async () => {
+      res.json({
+        status: httpStatus.CREATED,
+        message: "Your submission has been successfully submitted.",
       });
-      return res.status(httpStatus.OK).send({
+    })
+    .catch(async (err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
+};
+
+const update = async (req, res) => {
+  const { id } = req.params;
+
+  if (!db.Types.ObjectId.isValid(id)) {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      status: httpStatus.BAD_REQUEST,
+      message: "Invalid ID provided!",
+      id,
+    });
+  }
+
+  const personalInfo = await PersonalInfo.findById(id)
+    .exec()
+    .catch((err) => {
+      logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
+    });
+
+  if (!personalInfo) {
+    return res.status(httpStatus.NOT_FOUND).send({
+      status: httpStatus.NOT_FOUND,
+      message: "User not found!",
+      id: req.params.id,
+    });
+  }
+
+  Contact.findOneAndUpdate({ id }, req.body)
+    .then(() => {
+      res.json({
         status: httpStatus.OK,
-        firstName: userPersonalInfo.firstName,
-        userContact,
+        data: { userContact: req.body },
+        message: "Changes to your account has been successfully updated.",
       });
-    } else {
-      return res.status(httpStatus.NOT_FOUND).send({
-        status: httpStatus.NOT_FOUND,
-        firstName: userPersonalInfo.firstName,
-        message: "User or contact info not found!",
-      });
-    }
-  } catch (err) {
-    logger.error(err);
-  }
-};
-
-const updateUserContact = async (req, res) => {
-  await sequelize
-    .sync()
-    .then(function () {
-      logger.info("connected to database");
     })
-    .catch(function (err) {
+    .catch((err) => {
       logger.error(err);
+      res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err);
     });
-
-  const t = await sequelize.transaction();
-  try {
-    const userPersonalInfo = await UserPersonalInfo.findOne({
-      include: [
-        {
-          model: UserContact,
-          include: [{ model: UserAddress, as: "userAddresses" }],
-        },
-      ],
-      where: { uuid: req.params.id },
-    });
-
-    if (!userPersonalInfo || !userPersonalInfo.UserContact) {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "User or User contact not found!" });
-    }
-
-    if (userPersonalInfo && userPersonalInfo.UserContact) {
-      const updateContact = await userPersonalInfo.UserContact.update(
-        req.body,
-        {
-          transaction: t,
-        }
-      );
-
-      if (updateContact) {
-        req.body.userAddresses.forEach(async (address) => {
-          const updateAddress = await UserAddress.update(
-            address,
-            {
-              where: {
-                addressTypeCode: address.addressTypeCode,
-                user_contact_id: updateContact.id,
-              },
-            },
-            {
-              transaction: t,
-            }
-          );
-
-          if (updateAddress[0] === 0) {
-            await updateContact.createUserAddress(address);
-          }
-        });
-
-        await t.commit();
-        return res.status(httpStatus.OK).send({
-          status: httpStatus.OK,
-          message: "Changes to your account has been successfully updated.",
-          data: updateContact,
-        });
-      }
-    } else {
-      return res
-        .status(httpStatus.NOT_FOUND)
-        .send({ message: "User contact not found!" });
-    }
-  } catch (err) {
-    await t.rollback();
-    logger.error(err);
-  }
 };
 
 module.exports = {
-  getUserContact,
-  updateUserContact,
-  createUserContact,
+  get,
+  create,
+  update,
 };
