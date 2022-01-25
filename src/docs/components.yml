@@ -3,7 +3,7 @@ components:
     UserInfos:
       type: object
       properties:
-        uuid:
+        _id:
           type: string
         firstname:
           type: string
@@ -12,7 +12,7 @@ components:
         lastname:
           type: string
       example:
-        uuid: 1212-12233-23
+        _id: 1212-12233-23
         firstname: John
         middlename: J
         lastname: Smith
@@ -41,84 +41,103 @@ components:
     UserPref:
       type: object
       properties:
-        webLanguageCode:
+        firstName:
           type: string
-        correspondenceLanguageCode:
-          type: string
-        brailleTtyKeyboard:
-          type: string
-        preferredCurrencyCode:
-          type: date
-        timeZoneCode:
-          type: number
-        timeFormatCode:
-          type: number
+        userPref:
+          type: object
+          properties:
+            webLanguageCode:
+              type: string
+            correspondenceLanguageCode:
+              type: string
+            brailleTtyKeyboard:
+              type: string
+            preferredCurrencyCode:
+              type: date
+            timeZoneCode:
+              type: number
+            timeFormatCode:
+              type: number
       example:
-        webLanguageCode: 1
-        correspondenceLanguageCode: 2
-        brailleTtyKeyboard: true
-        preferredCurrencyCode: 1
-        timeZoneCode: 2
-        timeFormatCode: 1
+        firstName: John Doe
+        userPref:
+          webLanguageCode: 1
+          correspondenceLanguageCode: 2
+          brailleTtyKeyboard: true
+          preferredCurrencyCode: 1
+          timeZoneCode: 2
+          timeFormatCode: 1
     UserContact:
       type: object
       properties:
-        phone:
+        firstName:
           type: string
-        email:
-          type: string
-        userAddresses:
-          type: array
-          items:
-            type: object
-            properties:
-              addressTypeCode:
-                type: number
-              streetNumber:
-                type: number
-              streetName:
-                type: string
-              aptNumber:
-                type: number
-              postalCode:
-                type: string
-              city:
-                type: string
-              countryCode:
-                type: string
+        userContact:
+          type: object
+          properties:
+            phone:
+              type: string
+            email:
+              type: string
+            userAddresses:
+              type: array
+              items:
+                type: object
+                properties:
+                  addressTypeCode:
+                    type: number
+                  streetNumber:
+                    type: number
+                  streetName:
+                    type: string
+                  aptNumber:
+                    type: number
+                  postalCode:
+                    type: string
+                  city:
+                    type: string
+                  countryCode:
+                    type: string
       example:
-        phone: 6132227777
-        email: name@example.com
-        userAddresses:
-          - addressTypeCode: 1
-            streetNumber: 122
-            streetName: Main st
-            aptNumber: 1234
-            postalCode: K2Y3K2
-            city: Ottawa
-            country: CA
-            expiryDate: null
-          - addressTypeCode: 2
-            streetNumber: 122
-            streetName: Main st
-            aptNumber: null
-            postalCode: K2Y3K2
-            city: Ottawa
-            country: CA
-            expiryDate: 2021-11-28
+        firstName: John Doe
+        userContact:
+          phone: 6132227777
+          email: name@example.com
+          userAddresses:
+            - addressTypeCode: 1
+              streetNumber: 122
+              streetName: Main st
+              aptNumber: 1234
+              postalCode: K2Y3K2
+              city: Ottawa
+              country: CA
+            - addressTypeCode: 2
+              streetNumber: 122
+              streetName: Main st
+              aptNumber: null
+              postalCode: K2Y3K2
+              city: Ottawa
+              country: CA
     UserAccount:
       type: object
       properties:
-        institutionNumber:
+        firstName:
           type: string
-        transitNumber:
-          type: number
-        accountNumber:
-          type: number
+        userFinancialInfo:
+          type: object
+          properties:
+            institutionNumber:
+              type: string
+            transitNumber:
+              type: number
+            accountNumber:
+              type: number
       example:
-        institutionNumber: "010"
-        transitNumber: 232232
-        accountNumber: 123434343
+        firstName: John Doe
+        userFinancialInfo:
+          institutionNumber: "010"
+          transitNumber: 232232
+          accountNumber: 123434343
     Token:
       type: object
       properties:

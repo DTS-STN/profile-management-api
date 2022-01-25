@@ -178,8 +178,6 @@ module.exports = router;
  *                      type: string
  *                    countryCode:
  *                      type: string
- *                    expiryDate:
- *                      type: date
  *             example:
  *               phone: 6132223333
  *               email: name@example.com
@@ -191,7 +189,6 @@ module.exports = router;
  *                  postalCode: K2Y3P2
  *                  city: Ottawa
  *                  country: CA
- *                  expiryDate: null
  *                - addressTypeCode: 2
  *                  streetNumber: 121
  *                  streetName: Main st
@@ -199,7 +196,6 @@ module.exports = router;
  *                  postalCode: K2Y3P2
  *                  city: Ottawa
  *                  country: CA
- *                  expiryDate: 2021-11-28
  *     responses:
  *       "200":
  *         description: OK

@@ -37,7 +37,7 @@ const get = async (req, res) => {
     .select("phone email userAddresses -_id")
     .exec()
     .then((userContact) => {
-      res.json({ userContact: userContact });
+      res.json({ firstName: personalInfo.firstName, userContact: userContact });
     })
     .catch((err) => {
       logger.error(err);
@@ -94,6 +94,7 @@ const create = async (req, res) => {
     .then(async () => {
       res.json({
         status: httpStatus.CREATED,
+        data: contactDetails,
         message: "Your submission has been successfully submitted.",
       });
     })

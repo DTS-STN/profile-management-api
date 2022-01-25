@@ -37,7 +37,7 @@ const get = async (req, res) => {
     )
     .exec()
     .then((userPref) => {
-      res.json({ userPref: userPref });
+      res.json({ firstName: personalInfo.firstName, userPref: userPref });
     })
     .catch((err) => {
       logger.error(err);
@@ -95,6 +95,7 @@ const create = async (req, res) => {
     .then(async () => {
       res.json({
         status: httpStatus.CREATED,
+        data: userPrefBody,
         message: "Your submission has been successfully submitted.",
       });
     })

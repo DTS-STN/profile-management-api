@@ -37,7 +37,10 @@ const get = async (req, res) => {
     .select("institutionNumber transitNumber accountNumber -_id")
     .exec()
     .then((userFinancialInfo) => {
-      res.json({ userFinancialInfo: userFinancialInfo });
+      res.json({
+        firstName: personalInfo.firstName,
+        userFinancialInfo: userFinancialInfo,
+      });
     })
     .catch((err) => {
       logger.error(err);
@@ -95,6 +98,7 @@ const create = async (req, res) => {
     .then(async () => {
       return res.status(httpStatus.CREATED).send({
         status: httpStatus.CREATED,
+        data: financialInfoBody,
         message: "Your submission has been successfully submitted.",
       });
     })
