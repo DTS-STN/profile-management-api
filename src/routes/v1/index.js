@@ -3,6 +3,7 @@ const userPersonalInfo = require("./user_personal_info_route");
 const userPref = require("./user_pref_route");
 const userContactInfo = require("./user_contact_info_route");
 const userFinancialInfo = require("./user_financial_info_route");
+const userBenefitInfo = require("./user_benefit_info_route");
 const authenticateToken = require("../../middlewares/auth");
 const config = require("../../config/config");
 const docsRoute = require("./docs.route");
@@ -25,6 +26,10 @@ const routes = [
   {
     path: "/user/financial/info",
     route: userFinancialInfo,
+  },
+  {
+    path: "/user/benefit/info",
+    route: userBenefitInfo,
   },
 ];
 

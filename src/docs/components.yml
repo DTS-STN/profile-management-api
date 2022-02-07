@@ -118,6 +118,40 @@ components:
               postalCode: K2Y3K2
               city: Ottawa
               country: CA
+    BenefitInfo:
+      type: object
+      properties:
+        firstName:
+          type: string
+        benefitInfo:
+          type: object
+          properties:
+            benefits:
+              type: array
+              items:
+                type: object
+                properties:
+                  benefitType:
+                    type: string
+                  applicationStatus:
+                    type: string
+                  paymentAmount:
+                    type: string
+                  paymentDate:
+                    type: string
+      example:
+        firstName: John Doe
+        benefitInfo:
+          benefits:
+            - benefitType: OAS
+              applicationStatus: Approved
+              paymentAmount: 650
+              paymentDate: Feb 21, 2021
+            - benefitType: OAS
+              applicationStatus: Denied
+              paymentAmount: null
+              paymentDate: Feb 20, 2020
+ 
     UserAccount:
       type: object
       properties:
@@ -167,15 +201,15 @@ components:
           type: string
 
   responses:
-    DuplicateId:
-      description: userId already taken
+    BadRequest:
+      description: Request invalid or missing information or validation error
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             code: 400
-            message: Id already taken
+            message: Bad Request
     Unauthorized:
       description: Unauthorized
       content:

@@ -12,6 +12,7 @@
     "lint": "node node_modules/eslint/bin/eslint.js ./src ./tests"
   },
   "dependencies": {
+    "@joi/date": "^2.1.0",
     "cross-env": "^7.0.3",
     "cross-fetch": "^3.0.6",
     "dotenv": "^10.0.0",
@@ -23,10 +24,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.3.0",
     "mongoose": "^6.1.5",
-    "sequelize": "^6.9.0",
     "swagger-jsdoc": "^6.0.6",
     "swagger-ui-express": "^4.1.6",
-    "tedious": "^14.0.0",
     "uuid": "^8.3.2",
     "winston": "^3.2.1"
   },
