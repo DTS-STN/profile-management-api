@@ -1,7 +1,7 @@
 # profile-management-api
 API for Profile Management.
 
-This is a NodeJS/expressJS application. It uses a ms sql database in order to provide service to users when parameters/data provided. Please see swagger doc.
+This is a NodeJS/expressJS application. It uses a cosmos database in order to provide service to users when parameters/data provided. Please see swagger doc.
 
 Step 1. Install npm dependencies
 ```bash 
