@@ -24,7 +24,7 @@ $ npm run start
 `npm run test`: runs tests
 
 ## Environment Variables 
-```PORT```:  port for running the server
+```PORT```:  port for running the server fo local dev 3001
 
 ```NODE_ENV```:  specify environment prod or test or dev
 
@@ -32,8 +32,13 @@ $ npm run start
 
 ```COSMOS_PORT```:  Cosmos Database port
 
-```COSMOS_DB_NAME```:  Cosmos Database name
+```COSMOS_DB_NAME```:  Cosmos Database server name
 
+Once deployed, use postman collection(found in the root directory) to add user's personal info. Once user added, provide the url `<URL>/api/v1` to front-end so that it can be added to environment variable. for next project, environemt variable will be set as NEXT_PUBLIC_BASE_API_URL.
+
+developer can checkout the code and set the above environment variables in .env file and start the server using above command for dev environment.
+
+for now, swaggar is available when NODE_ENV is set as "dev". 
  
 ## Swagger 
 Swagger is available `<URL>/api/v1/api-docs`. 

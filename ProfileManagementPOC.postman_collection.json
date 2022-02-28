@@ -1,0 +1,52 @@
+{
+	"info": {
+		"_postman_id": "ba0d6deb-0ad9-4b43-9e30-e84928b014e5",
+		"name": "ProfileManagementPOC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add Personal Info",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"userPersonalInfo\": [\r\n        {\r\n            \"firstName\": \"Jane\",\r\n            \"middleName\": \"J\",\r\n            \"lastName\": \"Doe\",\r\n            \"dob\": \"1977-09-11\",\r\n            \"sinNumber\": 123456789,\r\n            \"maritalStatusCode\": 2\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api-saeb-sndbx-ca-01.azurewebsites.net/api/v1//user/personal/Info/",
+					"protocol": "https",
+					"host": [
+						"api-saeb-sndbx-ca-01",
+						"azurewebsites",
+						"net"
+					],
+					"path": [
+						"api",
+						"v1",
+						"",
+						"user",
+						"personal",
+						"Info",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All users",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}
