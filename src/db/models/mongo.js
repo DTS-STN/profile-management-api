@@ -3,7 +3,7 @@ const config = require("../../config/config");
 
 mongoose.Promise = global.Promise;
 
-const mongoUri = `mongodb://${config.cosmosDatabase}:${config.cosmosKey}@${config.cosmosDatabase}.mongo.cosmos.azure.com:${config.cosmosPort}/?ssl=true&&&retrywrites=false`;
+const mongoUri = `mongodb://${config.cosmosDatabase}:${config.cosmosKey}@${config.cosmosDatabase}.mongo.cosmos.azure.com:${config.cosmosPort}/?ssl=true&replicaSet=globaldb&retrywrites=false`;
 
 function connect() {
   return mongoose.connect(mongoUri);
